@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <link rel="stylesheet" href="styles/elements.css">
+    <link rel="stylesheet" href="styles/tabbedPane.css">
+    <link rel="stylesheet" href="styles/elementsPanel.css">
+    <link rel="stylesheet" href="styles/sidebarPane.css">
+    <link rel="stylesheet" href="styles/inspectorCommon.css">
+    <link rel="stylesheet" href="styles/inspectorSyntaxHighlight.css">
+    <link rel="stylesheet" href="styles/elementsTreeOutline.css">
+    <style>
+        html{
+            height:100%;
+        }
+        body{
+            height:100%;
+        }
+        .fill{
+            width:100%;
+        }
+        .panel{
+            height:100%;
+            display:flex;
+            flex-direction: row !important;
+        }
+        .vbox{
+            display:flex;
+            flex-direction:column;
+            position: relative;
+
+        }
+        .flex-auto{
+            flex:auto;
+        }
+        .tabbed-pane-content{
+            overflow: visible;
+        }
+        .split-widget{
+            flex-direction: row !important;
+            overflow: auto;
+        }
+        .full-height{
+            height:100%;
+        }
+        .border-left{
+            border-left: 1px solid rgb(64%, 64%, 64%);
+
+        }
+    </style>
+</head>
+<body>
+<div class="widget panel flex-auto">
+    <div class="split-widget flex-auto">
+        <div id="elements" class="elements-wrap"></div>
+    </div>
+    <div class="split-widget flex-auto border-left">
+        <div class="widget vbox tabbed-pane-shadow full-height" tabindex="-1">
+            <div class="tabbed-pane-header">
+                <content select=".tabbed-pane-header-before"></content>
+                <div class="tabbed-pane-header-contents">
+                    <div class="tabbed-pane-header-tabs">
+                        <div class="tabbed-pane-header-tab selected" id="tab-Styles" tabindex="-1">
+                            <span class="tabbed-pane-header-tab-title">Styles</span></div>
+                       <!-- <div class="tabbed-pane-header-tab" id="tab-Computed" tabindex="-1" ><span
+                                class="tabbed-pane-header-tab-title">Computed</span></div>
+-->
+                    </div>
+                </div>
+            </div>
+            <div class="tabbed-pane-content" id="styles_content">
+                <div class="sidebar-pane composite fill metrics-and-styles">
+                    <div class="widget vbox">
+                        <div class="widget vbox style-panes-wrapper">
+                            <div class="sidebar-pane styles-pane">
+                                <div id="styles_panel">
+
+                                </div>
+                            </div>
+                            <div class="sidebar-pane">
+                                <div class="metrics" id="metrics">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="lib/inspector.js"></script>
+
+</body>
+</html>

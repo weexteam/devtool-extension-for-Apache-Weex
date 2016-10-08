@@ -1,0 +1,36 @@
+{
+  "name": "weex devtools",
+  "version": "1.0.0",
+  "description": "Chrome devtools extension for debugging weex applications.",
+  "manifest_version": 2,
+  "icons": {
+    "16": "icons/16.png",
+    "48": "icons/48.png",
+    "128": "icons/128.png"
+  },
+
+  "content_security_policy": "script-src 'self' 'unsafe-eval'; object-src 'self'",
+  "web_accessible_resources": [ "main.html", "devtool.html", "" ],
+
+  "devtools_page": "devtool.html",
+
+  "background": {
+    "scripts": [ "lib/background.js" ],
+    "persistent": true
+  },
+
+  "permissions": [
+    "http://*/*",
+    "https://*/*",
+    "http://localhost:9222/",
+    "file://*"
+  ],
+
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["contentScript.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
