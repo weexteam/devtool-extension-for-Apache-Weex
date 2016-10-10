@@ -1,6 +1,6 @@
 {
   "name": "weex devtools",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Chrome devtools extension for debugging weex applications.",
   "manifest_version": 2,
   "icons": {

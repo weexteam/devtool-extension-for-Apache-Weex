@@ -48,13 +48,26 @@
             border-left: 1px solid rgb(64%, 64%, 64%);
 
         }
+        .element-widget{
+            width:70%;
+        }
+        .split-widget-resizer{
+            position: absolute;
+            top: 0;
+            bottom: 0;
+            width: 6px;
+            z-index: 500;
+            cursor: ew-resize;
+            margin-right: -3px;
+        }
     </style>
 </head>
 <body>
 <div class="widget panel flex-auto">
-    <div class="split-widget flex-auto">
-        <div id="elements" class="elements-wrap"></div>
+    <div class="split-widget element-widget">
+        <div  id="elements" class="elements-wrap"></div>
     </div>
+    <div class="split-widget-resizer"></div>
     <div class="split-widget flex-auto border-left">
         <div class="widget vbox tabbed-pane-shadow full-height" tabindex="-1">
             <div class="tabbed-pane-header">
