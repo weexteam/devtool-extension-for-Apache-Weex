@@ -1,11 +1,12 @@
 # weex-devtool-extension
-
-extension ctx下载地址 [download](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.1-alpha/shell.crx)
+A extension for Weex devtool to improve your debug experience，which equivalent an element tag for debugger page.
+#download 
+[react-devtools-chrome-0.0.2.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.2/react-devtools-chrome.zip)
 
 #useage
-~~* 下载crx文件
-* 打开chrome浏览器的菜单，选择【更多工具】->【扩展程序】进入扩展程序界面
-* 把crx文件拖到扩展程序页面里，点击安装~~ （此方法已失效，新版本chrome会自动禁用第三方安装的extension）
+* ~~下载crx文件~~
+* ~~打开chrome浏览器的菜单，选择【更多工具】->【扩展程序】进入扩展程序界面~~
+* ~~把crx文件拖到扩展程序页面里，点击安装~~（此方法已失效，新版本chrome会自动禁用第三方安装的extension）
 * 下载zip文件，并解压到任意目录。
 * 打开chrome浏览器的菜单，选择【更多工具】->【扩展程序】进入扩展程序界面，并勾选开发模式
 * 选择【加载已解压的扩展程序】选择你刚才解压出来的那个目录【weex-devtool-extension】完成安装
