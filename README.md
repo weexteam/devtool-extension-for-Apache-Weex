@@ -19,5 +19,6 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 * 重新整理了下代码
 * 加入构建机制，crx的方式不行了 只能通过zip包发布了
 * 增加elements窗口和styles窗口的拖动功能
+
 #####0.0.1
 first publish
