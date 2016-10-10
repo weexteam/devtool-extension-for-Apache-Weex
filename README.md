@@ -10,6 +10,7 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 * 下载zip文件，并解压到任意目录。
 * 打开chrome浏览器的菜单，选择【更多工具】->【扩展程序】进入扩展程序界面，并勾选开发模式
 * 选择【加载已解压的扩展程序】选择你刚才解压出来的那个目录【weex-devtool-extension】完成安装
+* 确保你的weex devtool的版本在0.2.46以上（通过weex debug -v查看）如果版本过低请使用npm install -g weex-toolkit升级。
 * 打开weex debug，连接设备调试，建议ElementMode选择vdom。
 * 打开debugger页面。打开devtool调试器，点击weex tab
 
