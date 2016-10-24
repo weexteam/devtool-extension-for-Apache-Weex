@@ -14,4 +14,4 @@ rsync -R -r ./icons/* \
 ../../release/weex-devtool-extension/
 cd ../../release
 
-zip  -r react-devtools-chrome.zip ./weex-devtool-extension
+zip  -r weex-devtools-chrome.zip ./weex-devtool-extension

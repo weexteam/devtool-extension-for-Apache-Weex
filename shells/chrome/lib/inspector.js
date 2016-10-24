@@ -258,13 +258,16 @@ var ENode = function () {
 
         this.nodeInfo = nodeInfo;
         this.children = [];
-
+        //fix ios childNodeCount loss bug
+        this.nodeInfo.nodeName == this.nodeInfo.nodeName || '';
         if (nodeInfo.children && nodeInfo.children.length > 0) {
-            for (var i = 0; i < nodeInfo.children.length; i++) {
+            this.nodeInfo.childNodeCount = isFinite(nodeInfo.childNodeCount) ? nodeInfo.childNodeCount : nodeInfo.children.length;
+            for (var i = 0; i < this.nodeInfo.childNodeCount; i++) {
                 this.children.push(new nodeClassMap[nodeInfo.children[i].nodeType](nodeInfo.children[i]));
             }
             delete nodeInfo.children;
         }
+
         this._ArrowWidth = 10;
         this._expandable = this.nodeInfo.childNodeCount > 0;
         this.expanded = false;
@@ -438,7 +441,7 @@ var DocumentNode = function (_ENode) {
                 elements[1] && this.element.appendChild(elements[1]);
             }.bind(this));
             this.childElement = this.element;
-            return this.element;
+            return [this.element];
         }
     }]);
 
@@ -518,7 +521,7 @@ var DocumentTypeNode = function (_ENode4) {
     return DocumentTypeNode;
 }(ENode);
 
-nodeClassMap = (_nodeClassMap = {}, _defineProperty(_nodeClassMap, Node.ELEMENT_NODE, ElementNode), _defineProperty(_nodeClassMap, Node.TEXT_NODE, TextNode), _defineProperty(_nodeClassMap, Node.DOCUMENT_TYPE_NODE, DocumentTypeNode), _nodeClassMap);
+nodeClassMap = (_nodeClassMap = {}, _defineProperty(_nodeClassMap, Node.ELEMENT_NODE, ElementNode), _defineProperty(_nodeClassMap, Node.TEXT_NODE, TextNode), _defineProperty(_nodeClassMap, Node.DOCUMENT_NODE, DocumentNode), _defineProperty(_nodeClassMap, Node.DOCUMENT_TYPE_NODE, DocumentTypeNode), _nodeClassMap);
 DocumentNode.all = _nodeMap;
 exports.DocumentNode = DocumentNode;
 exports.TextNode = TextNode;
@@ -731,11 +734,13 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
     });
     initResizer();
     port.on('data', function (data) {
-
+        if (!data) {
+            debugger;
+        }
         if (data.id == 3 && data.result) {
             var documentRoot = new _NodeRender.DocumentNode(data.result.root);
             console.log(data.result.root);
-            document.getElementById('elements').appendChild(documentRoot.render());
+            document.getElementById('elements').appendChild(documentRoot.render()[0]);
             /* var list=document.querySelectorAll('li');
              for(var i=0,l=list.length;i<l;i++){
              list[i].onmouseover=function(){
@@ -766,9 +771,19 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
                 });
                 document.getElementById('metrics').innerHTML = renderMetrics(computedStyle);
             } else if (data.method == 'DOM.childNodeInserted') {
-                _NodeRender.DocumentNode.all[data.params.parentNodeId].insertChild(data.params.previousNodeId, data.params.node);
+                var parent = _NodeRender.DocumentNode.all[data.params.parentNodeId];
+                if (parent) {
+                    parent.insertChild(data.params.previousNodeId, data.params.node);
+                } else {
+                    console.warn('parent[' + data.params.parentNodeId + '] not found when childNodeInserted!');
+                }
             } else if (data.method == 'DOM.childNodeRemoved') {
-                _NodeRender.DocumentNode.all[data.params.parentNodeId].removeChild(data.params.nodeId);
+                var _parent = _NodeRender.DocumentNode.all[data.params.parentNodeId];
+                if (_parent) {
+                    _parent.removeChild(data.params.nodeId);
+                } else {
+                    console.warn('parent[' + data.params.parentNodeId + '] not found when childNodeRemoved!');
+                }
             }
     });
 }); /**

@@ -2,17 +2,7 @@
  * Created by godsong on 16/9/19.
  */
 import Websocket from "./Websocket.js"
-class PortManager {
-    constructor(port) {
-        this.port = port;
-    }
 
-    connect() {
-
-    }
-}
-
-var portManager = new PortManager();
 class Host {
     constructor() {
         chrome.runtime.onConnect.addListener(function (port) {

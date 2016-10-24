@@ -9,13 +9,16 @@ class ENode {
     constructor(nodeInfo) {
         this.nodeInfo = nodeInfo;
         this.children = [];
-
+        //fix ios childNodeCount loss bug
+        this.nodeInfo.nodeName==this.nodeInfo.nodeName||'';
         if (nodeInfo.children && nodeInfo.children.length > 0) {
-            for (var i = 0; i < nodeInfo.children.length; i++) {
+            this.nodeInfo.childNodeCount=isFinite(nodeInfo.childNodeCount)?nodeInfo.childNodeCount:nodeInfo.children.length;
+            for (var i = 0; i < this.nodeInfo.childNodeCount; i++) {
                 this.children.push(new nodeClassMap[nodeInfo.children[i].nodeType](nodeInfo.children[i]));
             }
             delete nodeInfo.children;
         }
+
         this._ArrowWidth = 10;
         this._expandable = this.nodeInfo.childNodeCount > 0;
         this.expanded = false;
@@ -172,7 +175,7 @@ class DocumentNode extends ENode {
 
         }.bind(this))
         this.childElement = this.element;
-        return this.element;
+        return [this.element];
     }
 }
 class ElementNode extends ENode {
@@ -208,6 +211,7 @@ class DocumentTypeNode extends ENode {
 nodeClassMap = {
     [Node.ELEMENT_NODE]: ElementNode,
     [Node.TEXT_NODE]: TextNode,
+    [Node.DOCUMENT_NODE]:DocumentNode,
     [Node.DOCUMENT_TYPE_NODE]: DocumentTypeNode,
 };
 DocumentNode.all = _nodeMap;

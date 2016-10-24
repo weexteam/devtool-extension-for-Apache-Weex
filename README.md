@@ -15,7 +15,9 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 * 打开debugger页面。打开devtool调试器，点击weex tab
 
 
-#changelog
+# changelo
+##### 0.0.3
+* 修复ios下的bug (ios的dom结构与andorid不一致)g
 #####0.0.2
 * 重新整理了下代码
 * 加入构建机制，crx的方式不行了 只能通过zip包发布了

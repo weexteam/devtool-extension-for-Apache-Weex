@@ -65,10 +65,10 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
             })
         }
 
-    })
+    });
     window.onblur = function () {
         port.send({"id": id++, "method": "DOM.hideHighlight"});
-    }
+    };
     document.querySelector('#elements').addEventListener('mouseout', function (event) {
         var li = findParent(event.target);
         if (li) {
@@ -81,11 +81,13 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
     });
     initResizer();
     port.on('data', function (data) {
-
+        if(!data){
+            debugger;
+        }
         if (data.id == 3 && data.result) {
             var documentRoot = new DocumentNode(data.result.root);
             console.log(data.result.root);
-            document.getElementById('elements').appendChild(documentRoot.render());
+            document.getElementById('elements').appendChild(documentRoot.render()[0]);
             /* var list=document.querySelectorAll('li');
              for(var i=0,l=list.length;i<l;i++){
              list[i].onmouseover=function(){
@@ -120,10 +122,22 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
             document.getElementById('metrics').innerHTML = renderMetrics(computedStyle);
         }
         else if (data.method == 'DOM.childNodeInserted') {
-            DocumentNode.all[data.params.parentNodeId].insertChild(data.params.previousNodeId, data.params.node);
+            let parent=DocumentNode.all[data.params.parentNodeId];
+            if(parent) {
+                parent.insertChild(data.params.previousNodeId, data.params.node);
+            }
+            else{
+                console.warn('parent['+data.params.parentNodeId+'] not found when childNodeInserted!');
+            }
         }
         else if (data.method == 'DOM.childNodeRemoved') {
-            DocumentNode.all[data.params.parentNodeId].removeChild(data.params.nodeId);
+            let parent=DocumentNode.all[data.params.parentNodeId];
+            if(parent) {
+                parent.removeChild(data.params.nodeId);
+            }
+            else{
+                console.warn('parent['+data.params.parentNodeId+'] not found when childNodeRemoved!')
+            }
         }
     });
 });
