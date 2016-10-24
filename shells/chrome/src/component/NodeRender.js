@@ -51,7 +51,7 @@ class ENode {
         var afterNode, i = 0;
         var newNode = new nodeClassMap[nodeInfo.nodeType](nodeInfo);
         var elements = newNode.render();
-        if (prevNodeId != -1) {
+        if (prevNodeId&&prevNodeId != -1) {
             for (var l = this.children.length; i < l; i++) {
                 if (this.children[i].nodeInfo.nodeId == prevNodeId) {
                     afterNode = this.children[i + 1];
