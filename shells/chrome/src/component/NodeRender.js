@@ -63,6 +63,9 @@ class ENode {
                 throw new Error('can not find the prevNode:', prevNodeId);
             }
         }
+        else if(prevNodeId==-1){
+            afterNode=this.children[0];
+        }
         if (afterNode) {
             this.childElement.insertBefore(elements[0], afterNode.element);
             elements[1] && this.childElement.insertBefore(elements[1], afterNode.element);
@@ -79,8 +82,9 @@ class ENode {
 
     _renderChild() {
         var childElement = null;
+        childElement = this.childElement = this._createElement('ol', 'children');
         if (this.nodeInfo.childNodeCount > 0) {
-            childElement = this.childElement = this._createElement('ol', 'children');
+
 
             this.children.forEach(function (e) {
                 var elements = e.render();

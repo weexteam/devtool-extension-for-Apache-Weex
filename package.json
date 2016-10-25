@@ -1,6 +1,6 @@
 {
-  "name": "application-name",
-  "version": "0.0.1",
+  "name": "weex-devtool-extension",
+  "version": "0.0.4",
   "devDependencies": {
     "babel-preset-es2015": "^6.14.0",
     "webpack": "^2.1.0-beta.25"

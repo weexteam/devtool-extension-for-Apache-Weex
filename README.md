@@ -16,7 +16,9 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 
 
 # changelog
-##### 0.0.3
+#####0.0.4
+* ios所有问题已解决
+#####0.0.3
 * 修复ios下的bug (ios的dom结构与andorid不一致)g
 #####0.0.2
 * 重新整理了下代码

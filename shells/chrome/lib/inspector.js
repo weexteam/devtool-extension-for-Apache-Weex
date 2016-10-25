@@ -305,7 +305,7 @@ var ENode = function () {
                 i = 0;
             var newNode = new nodeClassMap[nodeInfo.nodeType](nodeInfo);
             var elements = newNode.render();
-            if (prevNodeId != -1) {
+            if (prevNodeId && prevNodeId != -1) {
                 for (var l = this.children.length; i < l; i++) {
                     if (this.children[i].nodeInfo.nodeId == prevNodeId) {
                         afterNode = this.children[i + 1];
@@ -315,6 +315,8 @@ var ENode = function () {
                 if (i == l) {
                     throw new Error('can not find the prevNode:', prevNodeId);
                 }
+            } else if (prevNodeId == -1) {
+                afterNode = this.children[0];
             }
             if (afterNode) {
                 this.childElement.insertBefore(elements[0], afterNode.element);
@@ -330,8 +332,8 @@ var ENode = function () {
         key: '_renderChild',
         value: function _renderChild() {
             var childElement = null;
+            childElement = this.childElement = this._createElement('ol', 'children');
             if (this.nodeInfo.childNodeCount > 0) {
-                childElement = this.childElement = this._createElement('ol', 'children');
 
                 this.children.forEach(function (e) {
                     var elements = e.render();
