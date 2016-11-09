@@ -4,7 +4,8 @@
 import {DocumentNode} from "./component/NodeRender";
 import Port from "./component/Port";
 import StyleRender from "./component/StyleRender";
-
+var _documentRoot;
+var _deepLevelFlag = 10;
 chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exceptionInfo) {
 
     var port = new Port(proxy);
@@ -80,14 +81,17 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
 
     });
     initResizer();
+    var _timer;
     port.on('data', function (data) {
-        if(!data){
+        if (!data) {
             debugger;
         }
         if (data.id == 3 && data.result) {
             var documentRoot = new DocumentNode(data.result.root);
+            _documentRoot = documentRoot;
             console.log(data.result.root);
             document.getElementById('elements').appendChild(documentRoot.render()[0]);
+            //analyzeDeepLevel(documentRoot);
             /* var list=document.querySelectorAll('li');
              for(var i=0,l=list.length;i<l;i++){
              list[i].onmouseover=function(){
@@ -122,41 +126,58 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
             document.getElementById('metrics').innerHTML = renderMetrics(computedStyle);
         }
         else if (data.method == 'DOM.childNodeInserted') {
-            let parent=DocumentNode.all[data.params.parentNodeId];
-            if(parent) {
+            let parent = DocumentNode.all[data.params.parentNodeId];
+            if (parent) {
                 parent.insertChild(data.params.previousNodeId, data.params.node);
+                clearTimeout(_timer);
+                _timer = setTimeout(function () {
+                    analyzeDeepLevel(_documentRoot);
+                }, 500)
+
             }
-            else{
-                console.warn('parent['+data.params.parentNodeId+'] not found when childNodeInserted!');
+            else {
+                console.warn('parent[' + data.params.parentNodeId + '] not found when childNodeInserted!');
             }
         }
         else if (data.method == 'DOM.childNodeRemoved') {
-            let parent=DocumentNode.all[data.params.parentNodeId];
-            if(parent) {
+            let parent = DocumentNode.all[data.params.parentNodeId];
+            if (parent) {
                 parent.removeChild(data.params.nodeId);
+                clearTimeout(_timer);
+                _timer = setTimeout(function () {
+                    analyzeDeepLevel(_documentRoot);
+                }, 500)
             }
-            else{
-                console.warn('parent['+data.params.parentNodeId+'] not found when childNodeRemoved!')
+            else {
+                console.warn('parent[' + data.params.parentNodeId + '] not found when childNodeRemoved!')
             }
         }
     });
+    document.querySelector('#validate').onclick = function () {
+        _deepLevelFlag = document.querySelector('#deep_level').value;
+        analyzeDeepLevel(_documentRoot);
+    };
+    document.querySelector('#clear').onclick = function () {
+        _clearDeepLevelWarnHighlight();
+    };
 });
-function initResizer(){
-    var resizer=document.querySelector('.split-widget-resizer');
-    var elementWidget=document.querySelector('.element-widget');
-    var panel=document.querySelector('.panel');
-    resizer.style.left=elementWidget.offsetWidth+'px';
-    function onMouseMove(event){
-        resizer.style.left=event.clientX+'px';
-        elementWidget.style.width=event.clientX+'px';
+function initResizer() {
+    var resizer = document.querySelector('.split-widget-resizer');
+    var elementWidget = document.querySelector('.element-widget');
+    var panel = document.querySelector('.panel');
+    resizer.style.left = elementWidget.offsetWidth + 'px';
+    function onMouseMove(event) {
+        resizer.style.left = event.clientX + 'px';
+        elementWidget.style.width = event.clientX + 'px';
     }
-    resizer.addEventListener('mousedown',function(){
-        panel.style.cursor='ew-resize';
-        document.addEventListener('mousemove',onMouseMove);
+
+    resizer.addEventListener('mousedown', function () {
+        panel.style.cursor = 'ew-resize';
+        document.addEventListener('mousemove', onMouseMove);
     });
-    document.addEventListener('mouseup',function(){
-        panel.style.cursor='auto';
-        document.removeEventListener('mousemove',onMouseMove);
+    document.addEventListener('mouseup', function () {
+        panel.style.cursor = 'auto';
+        document.removeEventListener('mousemove', onMouseMove);
     });
 }
 var highlightConfig = {
@@ -223,4 +244,36 @@ function renderMetrics(computedStyle) {
         <div class="bottom">${computedStyle['bottom'] || '0'}</div>
         </div>`
 
+}
+function _resolveDeepLevel(node, deep = 0) {
+    var deepLevel = deep;
+    for (var i = 0, l = node.children.length; i < l; i++) {
+        let childDeepLevel = _resolveDeepLevel(node.children[i], deep + 1);
+        if (childDeepLevel > deepLevel) {
+            deepLevel = childDeepLevel
+        }
+    }
+    var $deepAttr=node.element.querySelector('.ext-deep');
+    $deepAttr&&$deepAttr.parentNode.removeChild($deepAttr);
+    node._addAttribute(node.element, 'deep', deepLevel,'ext-deep');
+    if (deepLevel >= _deepLevelFlag) {
+        node.element.className += ' warn'
+    }
+    else if(node.nodeInfo.nodeName==='div'&&node.children.length==1&&node.children[0].nodeInfo.nodeName==='div'){
+        node.element.className += ' important-warn';
+        node.children[0].element.className+=' important-warn';
+        deepLevel=_deepLevelFlag+1;
+    }
+    return deepLevel;
+}
+function _clearDeepLevelWarnHighlight() {
+    var nodeList = document.querySelectorAll('li.warn,li.important-warn');
+    for (var i = 0, l = nodeList.length; i < l; i++) {
+        nodeList[i].className = nodeList[i].className.replace(/\s+(warn|important-warn)/g, '');
+
+    }
+}
+function analyzeDeepLevel(node) {
+    _clearDeepLevelWarnHighlight();
+    _resolveDeepLevel(node, 0)
 }

@@ -1,7 +1,7 @@
 # weex-devtool-extension
 A extension for Weex devtool to improve your debug experience，which equivalent an element tag for debugger page.
 #download 
-[weex-devtools-chrome-0.0.4.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.4/weex-devtools-chrome.zip)
+[weex-devtools-chrome-0.0.5.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.5/weex-devtools-chrome.zip)
 
 #useage
 * ~~下载crx文件~~
@@ -16,6 +16,10 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 
 
 # changelog
+
+##### 0.0.5  
+* 增加node深度检查功能，深度过深的节点会标为高亮（整个路径节点全部高亮），可以设置阈值 默认10层深度
+* 单纯div嵌套也会标记为高亮（即一个div套了一个div且这个div是其唯一子节点）  
 #####0.0.4
 * ios所有问题已解决  
 

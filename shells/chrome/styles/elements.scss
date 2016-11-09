@@ -84,6 +84,14 @@ body {
     bottom: 0;
     z-index: -1;
   }
+  &.warn .selection-fill{
+    display: block;
+    left: 3px;
+    right: 3px;
+    background-color: rgb(244,245,96);
+    border-radius: 5px;
+    margin-left: -10000px;
+  }
   &.selected {
     .selection-fill {
       display: block;

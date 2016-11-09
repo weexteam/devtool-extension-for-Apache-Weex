@@ -6,15 +6,17 @@ var _nodeMap = {};
 function noop() {
 }
 class ENode {
-    constructor(nodeInfo) {
+    constructor(nodeInfo,parent) {
         this.nodeInfo = nodeInfo;
         this.children = [];
+        this.parent=parent;
+        this.deep=parent?parent.deep+1:0;
         //fix ios childNodeCount loss bug
         this.nodeInfo.nodeName==this.nodeInfo.nodeName||'';
         if (nodeInfo.children && nodeInfo.children.length > 0) {
             this.nodeInfo.childNodeCount=isFinite(nodeInfo.childNodeCount)?nodeInfo.childNodeCount:nodeInfo.children.length;
             for (var i = 0; i < this.nodeInfo.childNodeCount; i++) {
-                this.children.push(new nodeClassMap[nodeInfo.children[i].nodeType](nodeInfo.children[i]));
+                this.children.push(new nodeClassMap[nodeInfo.children[i].nodeType](nodeInfo.children[i],this));
             }
             delete nodeInfo.children;
         }
@@ -32,7 +34,14 @@ class ENode {
     _renderBody() {
         throw new Error('_renderBody not implement');
     }
+    _addAttribute(element,attrName,attrValue,extraFlag){
+        var attr=document.createElement('span');
+        attr.className='webkit-html-attribute '+extraFlag;
+        attr.innerHTML=` <span class="webkit-html-attribute-name">${attrName}</span>="<span class="webkit-html-attribute-value">${attrValue}</span>"`;
+        var tag=element.querySelector('.webkit-html-tag');
+        tag.insertBefore(attr,tag.lastChild);
 
+    }
     removeChild(nodeId) {
         var childNode = _nodeMap[nodeId];
         if (childNode) {
@@ -83,11 +92,15 @@ class ENode {
     _renderChild() {
         var childElement = null;
         childElement = this.childElement = this._createElement('ol', 'children');
+        childElement.deepLevel=this.deep;
         if (this.nodeInfo.childNodeCount > 0) {
 
 
             this.children.forEach(function (e) {
                 var elements = e.render();
+                if(e.deepLevel>childElement.deepLevel) {
+                    childElement.deepLevel = e.deepLevel;
+                }
                 childElement.appendChild(elements[0]);
                 elements[1] && childElement.appendChild(elements[1]);
 
@@ -105,6 +118,12 @@ class ENode {
         this.element = this._createContainer();
         this.element.innerHTML = this._renderBody();
         this.childElement = this._renderChild();
+        this.deepLevel=this.childElement.deepLevel;
+        /*this._addAttribute(this.element,'level',this.deepLevel);
+        this._addAttribute(this.element,'deep',this.deep);
+        if(this.deepLevel>=9){
+            this.element.className+=' warn';
+        }*/
         this.element.addEventListener('click', this._toggleElementTree.bind(this), false);
         this._hook('@afterRender')();
         this.element._nodeId = this.nodeInfo.nodeId;
@@ -180,6 +199,9 @@ class DocumentNode extends ENode {
         }.bind(this))
         this.childElement = this.element;
         return [this.element];
+    }
+    _addAttribute(){
+
     }
 }
 class ElementNode extends ENode {
