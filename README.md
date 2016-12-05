@@ -12,7 +12,8 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 * 选择【加载已解压的扩展程序】选择你刚才解压出来的那个目录【weex-devtool-extension】完成安装
 * 确保你的weex devtool的版本在0.2.46以上（通过weex debug -v查看）如果版本过低请使用npm install -g weex-toolkit升级。
 * 打开weex debug，连接设备调试，建议ElementMode选择vdom。
-* 打开debugger页面。打开devtool调试器，点击weex tab
+* 打开debugger页面。打开devtool调试器，点击weex tab  
+
 ###深度检查工具
  weex tab的下方有一个Node Deep Validator 用于检查当前Node tree的一些过深的节点和需要绣花的情况  
  点击valide会对当前的Node tree进行深度检查，超过警戒值的节点的整个路径上的节点都会标记高亮（警戒值可以通过下面那个输入框设置 默认是10层）  
