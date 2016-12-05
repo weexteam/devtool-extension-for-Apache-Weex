@@ -15,8 +15,8 @@ A extension for Weex devtool to improve your debug experience，which equivalent
 * 打开debugger页面。打开devtool调试器，点击weex tab  
 
 ###深度检查工具
- weex tab的下方有一个Node Deep Validator 用于检查当前Node tree的一些过深的节点和需要绣花的情况  
- 点击valide会对当前的Node tree进行深度检查，超过警戒值的节点的整个路径上的节点都会标记高亮（警戒值可以通过下面那个输入框设置 默认是10层）  
+ weex tab的下方有一个Node Deep Validator 用于检查当前Node tree的一些过深的节点和需要优化的情况（目前是div嵌套）  
+ 点击validate按钮会对当前的Node tree进行深度检查，超过警戒值的节点的整个路径上的节点都会标记高亮（警戒值可以通过下面那个输入框设置 默认是10层）  
  另外 DIV嵌套的情况(即一个div套了一个div且这个div是其唯一子节点)也是会标记为高亮(即使深度没有超过警戒值)  
  P.S. Node tree里的deep属性是最大深度level的意思 本身是我了我自己调试用，所以不要依赖这个属性(标记div嵌套的时候我做了处理 那个值不是真实值)  
  
