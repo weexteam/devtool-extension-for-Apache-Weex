@@ -253,17 +253,19 @@ var _nodeMap = {};
 function noop() {}
 
 var ENode = function () {
-    function ENode(nodeInfo) {
+    function ENode(nodeInfo, parent) {
         _classCallCheck(this, ENode);
 
         this.nodeInfo = nodeInfo;
         this.children = [];
+        this.parent = parent;
+        this.deep = parent ? parent.deep + 1 : 0;
         //fix ios childNodeCount loss bug
         this.nodeInfo.nodeName == this.nodeInfo.nodeName || '';
         if (nodeInfo.children && nodeInfo.children.length > 0) {
             this.nodeInfo.childNodeCount = isFinite(nodeInfo.childNodeCount) ? nodeInfo.childNodeCount : nodeInfo.children.length;
             for (var i = 0; i < this.nodeInfo.childNodeCount; i++) {
-                this.children.push(new nodeClassMap[nodeInfo.children[i].nodeType](nodeInfo.children[i]));
+                this.children.push(new nodeClassMap[nodeInfo.children[i].nodeType](nodeInfo.children[i], this));
             }
             delete nodeInfo.children;
         }
@@ -283,6 +285,15 @@ var ENode = function () {
         key: '_renderBody',
         value: function _renderBody() {
             throw new Error('_renderBody not implement');
+        }
+    }, {
+        key: '_addAttribute',
+        value: function _addAttribute(element, attrName, attrValue, extraFlag) {
+            var attr = document.createElement('span');
+            attr.className = 'webkit-html-attribute ' + extraFlag;
+            attr.innerHTML = ' <span class="webkit-html-attribute-name">' + attrName + '</span>="<span class="webkit-html-attribute-value">' + attrValue + '</span>"';
+            var tag = element.querySelector('.webkit-html-tag');
+            tag.insertBefore(attr, tag.lastChild);
         }
     }, {
         key: 'removeChild',
@@ -333,10 +344,14 @@ var ENode = function () {
         value: function _renderChild() {
             var childElement = null;
             childElement = this.childElement = this._createElement('ol', 'children');
+            childElement.deepLevel = this.deep;
             if (this.nodeInfo.childNodeCount > 0) {
 
                 this.children.forEach(function (e) {
                     var elements = e.render();
+                    if (e.deepLevel > childElement.deepLevel) {
+                        childElement.deepLevel = e.deepLevel;
+                    }
                     childElement.appendChild(elements[0]);
                     elements[1] && childElement.appendChild(elements[1]);
                 });
@@ -354,6 +369,12 @@ var ENode = function () {
             this.element = this._createContainer();
             this.element.innerHTML = this._renderBody();
             this.childElement = this._renderChild();
+            this.deepLevel = this.childElement.deepLevel;
+            /*this._addAttribute(this.element,'level',this.deepLevel);
+            this._addAttribute(this.element,'deep',this.deep);
+            if(this.deepLevel>=9){
+                this.element.className+=' warn';
+            }*/
             this.element.addEventListener('click', this._toggleElementTree.bind(this), false);
             this._hook('@afterRender')();
             this.element._nodeId = this.nodeInfo.nodeId;
@@ -445,6 +466,9 @@ var DocumentNode = function (_ENode) {
             this.childElement = this.element;
             return [this.element];
         }
+    }, {
+        key: '_addAttribute',
+        value: function _addAttribute() {}
     }]);
 
     return DocumentNode;
@@ -662,6 +686,11 @@ var _StyleRender2 = _interopRequireDefault(_StyleRender);
 
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
+var _documentRoot; /**
+                    * Created by godsong on 16/8/29.
+                    */
+
+var _deepLevelFlag = 10;
 chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exceptionInfo) {
 
     var port = new _Port2.default(proxy);
@@ -735,14 +764,17 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
         }
     });
     initResizer();
+    var _timer;
     port.on('data', function (data) {
         if (!data) {
             debugger;
         }
         if (data.id == 3 && data.result) {
             var documentRoot = new _NodeRender.DocumentNode(data.result.root);
+            _documentRoot = documentRoot;
             console.log(data.result.root);
             document.getElementById('elements').appendChild(documentRoot.render()[0]);
+            //analyzeDeepLevel(documentRoot);
             /* var list=document.querySelectorAll('li');
              for(var i=0,l=list.length;i<l;i++){
              list[i].onmouseover=function(){
@@ -776,6 +808,10 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
                 var parent = _NodeRender.DocumentNode.all[data.params.parentNodeId];
                 if (parent) {
                     parent.insertChild(data.params.previousNodeId, data.params.node);
+                    clearTimeout(_timer);
+                    _timer = setTimeout(function () {
+                        analyzeDeepLevel(_documentRoot);
+                    }, 500);
                 } else {
                     console.warn('parent[' + data.params.parentNodeId + '] not found when childNodeInserted!');
                 }
@@ -783,15 +819,23 @@ chrome.devtools.inspectedWindow.eval('$WeexInspectorProxy', function (proxy, exc
                 var _parent = _NodeRender.DocumentNode.all[data.params.parentNodeId];
                 if (_parent) {
                     _parent.removeChild(data.params.nodeId);
+                    clearTimeout(_timer);
+                    _timer = setTimeout(function () {
+                        analyzeDeepLevel(_documentRoot);
+                    }, 500);
                 } else {
                     console.warn('parent[' + data.params.parentNodeId + '] not found when childNodeRemoved!');
                 }
             }
     });
-}); /**
-     * Created by godsong on 16/8/29.
-     */
-
+    document.querySelector('#validate').onclick = function () {
+        _deepLevelFlag = document.querySelector('#deep_level').value;
+        analyzeDeepLevel(_documentRoot);
+    };
+    document.querySelector('#clear').onclick = function () {
+        _clearDeepLevelWarnHighlight();
+    };
+});
 function initResizer() {
     var resizer = document.querySelector('.split-widget-resizer');
     var elementWidget = document.querySelector('.element-widget');
@@ -801,6 +845,7 @@ function initResizer() {
         resizer.style.left = event.clientX + 'px';
         elementWidget.style.width = event.clientX + 'px';
     }
+
     resizer.addEventListener('mousedown', function () {
         panel.style.cursor = 'ew-resize';
         document.addEventListener('mousemove', onMouseMove);
@@ -825,6 +870,45 @@ var highlightConfig = {
 };
 function renderMetrics(computedStyle) {
     return "<div class=\"position\" style=\"background-color: rgba(0, 0, 0, 0);\">\n        <div class=\"label\">position</div>\n        <div class=\"top\">" + (computedStyle['top'] || '0') + "</div>\n        <br>\n\n        <div class=\"left\">" + (computedStyle['left'] || '0') + "</div>\n        <div class=\"margin\" style=\"background-color: rgba(246, 178, 107, 0.658824);\">\n        <div class=\"label\">margin</div>\n        <div class=\"top\">" + (computedStyle['margin-top'] || '-') + "</div>\n    <br>\n\n    <div class=\"left\">" + (computedStyle['margin-left'] || '-') + "</div>\n    <div class=\"border\"\n    style=\"background-color: rgba(255, 229, 153, 0.658824);\">\n        <div class=\"label\">border</div>\n        <div class=\"top\">" + (computedStyle['border-top'] || '-') + "</div>\n    <br>\n\n    <div class=\"left\">" + (computedStyle['border-left'] || '-') + "</div>\n    <div class=\"padding\"\n    style=\"background-color: rgba(147, 196, 125, 0.54902);\">\n        <div class=\"label\">padding</div>\n        <div class=\"top\">" + (computedStyle['padding-top'] || '-') + "</div>\n    <br>\n\n    <div class=\"left\">" + (computedStyle['padding-left'] || '-') + "</div>\n    <div class=\"content\"\n    style=\"background-color: rgba(111, 168, 220, 0.658824);\"><span>" + (computedStyle['width'] || '0') + "</span>\n                                                        × <span>" + (computedStyle['height'] || '0') + "</span></div>\n    <div class=\"right\">" + (computedStyle['padding-right'] || '-') + "</div>\n    <br>\n\n    <div class=\"bottom\">" + (computedStyle['padding-bottom'] || '-') + "</div>\n    </div>\n    <div class=\"right\">" + (computedStyle['border-right'] || '-') + "</div>\n    <br>\n\n    <div class=\"bottom\">" + (computedStyle['border-bottom'] || '-') + "</div>\n    </div>\n    <div class=\"right\">" + (computedStyle['margin-right'] || '-') + "</div>\n    <br>\n\n    <div class=\"bottom\">" + (computedStyle['margin-bottom'] || '-') + "</div>\n    </div>\n    <div class=\"right\">" + (computedStyle['right'] || '0') + "</div>\n        <br>\n\n        <div class=\"bottom\">" + (computedStyle['bottom'] || '0') + "</div>\n        </div>";
+}
+function _resolveDeepLevel(node) {
+    var deep = arguments.length <= 1 || arguments[1] === undefined ? 0 : arguments[1];
+
+    var deepLevel = deep;
+    for (var i = 0, l = node.children.length; i < l; i++) {
+        var childDeepLevel = _resolveDeepLevel(node.children[i], deep + 1);
+        if (Math.abs(childDeepLevel) > Math.abs(deepLevel)) {
+            if (deepLevel < 0 && childDeepLevel > 0) {
+                deepLevel = -childDeepLevel;
+            } else {
+                deepLevel = childDeepLevel;
+            }
+        }
+    }
+    var $deepAttr = node.element.querySelector('.ext-deep');
+    $deepAttr && $deepAttr.parentNode.removeChild($deepAttr);
+    node._addAttribute(node.element, 'deep', deep, 'ext-deep');
+    if (node.children.length > 0) {
+        node._addAttribute(node.element, 'max-deep', Math.abs(deepLevel), 'ext-deep');
+    }
+    if (deepLevel >= _deepLevelFlag || deepLevel < 0) {
+        node.element.className += ' warn';
+    } else if (node.nodeInfo.nodeName === 'div' && node.children.length == 1 && node.children[0].nodeInfo.nodeName === 'div') {
+        node.element.className += ' important-warn';
+        node.children[0].element.className += ' important-warn';
+        deepLevel = -Math.abs(deepLevel);
+    }
+    return deepLevel;
+}
+function _clearDeepLevelWarnHighlight() {
+    var nodeList = document.querySelectorAll('li.warn,li.important-warn');
+    for (var i = 0, l = nodeList.length; i < l; i++) {
+        nodeList[i].className = nodeList[i].className.replace(/\s+(warn|important-warn)/g, '');
+    }
+}
+function analyzeDeepLevel(node) {
+    _clearDeepLevelWarnHighlight();
+    _resolveDeepLevel(node, 0);
 }
 
 /***/ }

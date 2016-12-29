@@ -249,20 +249,28 @@ function _resolveDeepLevel(node, deep = 0) {
     var deepLevel = deep;
     for (var i = 0, l = node.children.length; i < l; i++) {
         let childDeepLevel = _resolveDeepLevel(node.children[i], deep + 1);
-        if (childDeepLevel > deepLevel) {
-            deepLevel = childDeepLevel
+        if (Math.abs(childDeepLevel) > Math.abs(deepLevel)) {
+            if(deepLevel<0&&childDeepLevel>0){
+                deepLevel = -childDeepLevel
+            }
+            else{
+                deepLevel = childDeepLevel
+            }
         }
     }
     var $deepAttr=node.element.querySelector('.ext-deep');
     $deepAttr&&$deepAttr.parentNode.removeChild($deepAttr);
-    node._addAttribute(node.element, 'deep', deepLevel,'ext-deep');
-    if (deepLevel >= _deepLevelFlag) {
+    node._addAttribute(node.element, 'deep', deep,'ext-deep');
+    if(node.children.length>0){
+        node._addAttribute(node.element, 'max-deep', Math.abs(deepLevel),'ext-deep');
+    }
+    if (deepLevel >= _deepLevelFlag||deepLevel<0) {
         node.element.className += ' warn'
     }
     else if(node.nodeInfo.nodeName==='div'&&node.children.length==1&&node.children[0].nodeInfo.nodeName==='div'){
         node.element.className += ' important-warn';
         node.children[0].element.className+=' important-warn';
-        deepLevel=_deepLevelFlag+1;
+        deepLevel=-Math.abs(deepLevel);
     }
     return deepLevel;
 }
