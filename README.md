@@ -1,7 +1,7 @@
 # weex-devtool-extension
 A extension for Weex devtool to improve your debug experience，which equivalent an element tag for debugger page.
 #download 
-[weex-devtools-chrome-0.0.5.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.5/weex-devtools-chrome.zip)
+[weex-devtools-chrome-0.0.5.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.6/weex-devtools-chrome.zip)
 
 #useage
 * ~~下载crx文件~~
