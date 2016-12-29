@@ -1,7 +1,7 @@
 # weex-devtool-extension
 A extension for Weex devtool to improve your debug experience，which equivalent an element tag for debugger page.
 #download 
-[weex-devtools-chrome-0.0.5.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.6/weex-devtools-chrome.zip)
+[weex-devtools-chrome-0.0.6.zip](https://github.com/weexteam/weex-devtool-extension/releases/download/0.0.6/weex-devtools-chrome.zip)
 
 #useage
 * ~~下载crx文件~~
@@ -21,7 +21,9 @@ A extension for Weex devtool to improve your debug experience，which equivalent
  P.S. Node tree里的deep属性是最大深度level的意思 本身是我了我自己调试用，所以不要依赖这个属性(标记div嵌套的时候我做了处理 那个值不是真实值)  
  
 # changelog
-
+##### 0.0.6 
+  *避免误解重新展示 deep 和max deep 并优化div嵌套处理对deep的干扰 
+  
 ##### 0.0.5  
 * 增加node深度检查功能，深度过深的节点会标为高亮（整个路径节点全部高亮），可以设置阈值 默认10层深度
 * 单纯div嵌套也会标记为高亮（即一个div套了一个div且这个div是其唯一子节点）  
